@@ -22,7 +22,17 @@ export const Posts: CollectionConfig = {
       `${process.env.PAYLOAD_PUBLIC_SITE_URL}/api/preview?url=${formatAppURL({ doc })}`,
   },
   hooks: {
-    beforeChange: [populatePublishedDate],
+    beforeChange: [
+      ({ data, req, operation }) => {
+        if (operation === 'create') {
+          return {
+            ...data,
+            owner: req.user.id, // Assign the owner automatically
+          };
+        }
+        return data;
+      },
+    ],
     afterRead: [populateArchiveBlock],
     afterChange: [revalidatePage],
   },
@@ -30,10 +40,19 @@ export const Posts: CollectionConfig = {
     drafts: true,
   },
   access: {
-    read: adminsOrPublished,
-    update: admins,
-    create: admins,
-    delete: admins,
+    read: ({ req }) => {
+      if (req.user.role === 'admin') return true; // Admins can read all
+      return { owner: { equals: req.user.id } }; // Users can only read their own items
+    },
+    update: ({ req }) => {
+      if (req.user.role === 'admin') return true;
+      return { owner: { equals: req.user.id } };
+    },
+    delete: ({ req }) => {
+      if (req.user.role === 'admin') return true;
+      return { owner: { equals: req.user.id } };
+    },
+    create: ({ req }) => !!req.user, // Any authenticated user can create
   },
   fields: [
     {
@@ -41,6 +60,16 @@ export const Posts: CollectionConfig = {
       type: 'text',
       required: true,
     },
+    {
+      name: 'owner',
+      type: 'relationship',
+      relationTo: 'users', // This links to the users collection
+      required: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    
     {
       name: 'publishedDate',
       type: 'date',
@@ -70,4 +99,5 @@ export const Posts: CollectionConfig = {
     },
     slugField(),
   ],
+
 }

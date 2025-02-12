@@ -30,7 +30,7 @@ export const Pages: CollectionConfig = {
     drafts: true,
   },
   access: {
-    read: adminsOrPublished,
+    read: admins,
     update: admins,
     create: admins,
     delete: admins,

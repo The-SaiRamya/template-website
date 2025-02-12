@@ -1,11 +1,11 @@
 import type { GlobalConfig } from 'payload/types'
-
+import { checkRole } from '../collections/Users/checkRole';
 import link from '../fields/link'
 
 export const Header: GlobalConfig = {
   slug: 'header',
   access: {
-    read: () => true,
+    read: ({ req: { user } }) => checkRole(['admin'], user), 
   },
   fields: [
     {
@@ -20,3 +20,5 @@ export const Header: GlobalConfig = {
     },
   ],
 }
+
+export default Header;

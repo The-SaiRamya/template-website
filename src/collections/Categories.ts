@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload/types'
+import { checkRole } from '../collections/Users/checkRole';
 
 const Categories: CollectionConfig = {
   slug: 'categories',
@@ -6,7 +7,7 @@ const Categories: CollectionConfig = {
     useAsTitle: 'title',
   },
   access: {
-    read: () => true,
+    read: ({ req: { user } }) => checkRole(['admin'], user),
   },
   fields: [
     {

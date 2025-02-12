@@ -24,7 +24,7 @@ export interface Config {
 export interface User {
   id: string;
   name?: string;
-  roles?: ('admin' | 'user')[];
+  roles?: ('admin' | 'editor' | 'user')[];
   email?: string;
   resetPasswordToken?: string;
   resetPasswordExpiration?: string;
